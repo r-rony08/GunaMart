@@ -131,14 +131,29 @@ celerybeat.pid
 # SageMath parsed files
 *.sage.py
 
-# Environments
+
+# Environment variables
 .env
 .venv
 env/
 venv/
+.venv/
 ENV/
 env.bak/
 venv.bak/
+
+# Python
+__pycache__/
+*.py[cod]
+
+
+# Django
+db.sqlite3
+staticfiles/
+
+# IDE
+.vscode/
+.idea/
 
 # Spyder project settings
 .spyderproject
@@ -164,9 +179,6 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
-# IDE
-.vscode/
-staticfiles/
 
 # PyCharm
 #  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
