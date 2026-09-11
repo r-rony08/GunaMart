@@ -54,6 +54,8 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     last_name = models.CharField(max_length=150,blank=True)
 
+    phone_number = models.CharField(max_length=20,blank=True)
+
     role = models.CharField(
         max_length=20,
         choices=Role.choices,
@@ -70,8 +72,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     USERNAME_FIELD = "email"
 
-    REQUIRED_FIELDS = ["username"]
+    REQUIRED_FIELDS = ["username", "first_name", "last_name"]
 
     def __str__(self):
         return self.email
-
