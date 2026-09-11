@@ -97,3 +97,19 @@ def test_username_must_be_unique():
             username="customer",
             password="TestPassword123",
         )
+
+
+@pytest.mark.django_db
+def test_user_can_have_phone_number():
+    user = User.objects.create_user(
+        email="customer@example.com",
+        username="customer",
+        password="TestPassword123",
+        phone_number="+8801712345678",
+    )
+
+    assert user.phone_number == "+8801712345678"
+
+
+def test_phone_number_is_not_in_required_fields():
+    assert "phone_number" not in User.REQUIRED_FIELDS

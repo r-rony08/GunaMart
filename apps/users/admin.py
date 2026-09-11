@@ -17,6 +17,7 @@ class CustomUserAdmin(UserAdmin):
         "username",
         "first_name",
         "last_name",
+        "phone_number",
         "role",
         "is_active",
         "is_staff",
@@ -24,7 +25,7 @@ class CustomUserAdmin(UserAdmin):
 
     list_filter = ("role", "is_active", "is_staff",)
 
-    search_fields = ("email", "username", "first_name", "last_name",)
+    search_fields = ("email", "username", "first_name", "last_name", "phone_number")
 
     ordering = ("-date_joined",)
 
@@ -37,6 +38,7 @@ class CustomUserAdmin(UserAdmin):
                 "username",
                 "first_name",
                 "last_name",
+                "phone_number",
             )
         }),
         ("Role & Status", {
@@ -68,6 +70,7 @@ class CustomUserAdmin(UserAdmin):
                 "username",
                 "first_name",
                 "last_name",
+                "phone_number",
                 "role",
                 "password1",
                 "password2",
