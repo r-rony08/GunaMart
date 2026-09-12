@@ -2,6 +2,9 @@ import pytest
 from django.contrib.auth import get_user_model
 from django.db import IntegrityError
 
+from apps.users.models import UserProfile
+from django.core.files.uploadedfile import SimpleUploadedFile
+
 User = get_user_model()
 
 
@@ -113,3 +116,63 @@ def test_user_can_have_phone_number():
 
 def test_phone_number_is_not_in_required_fields():
     assert "phone_number" not in User.REQUIRED_FIELDS
+
+
+@pytest.mark.django_db
+def test_user_profile_can_be_created():
+
+    user = User.objects.create_user(
+        email="profile@example.com",
+        username="profileuser",
+        password="TestPassword123",
+    )
+
+    profile = UserProfile.objects.create(
+        user=user
+    )
+
+    assert profile.user == user
+    assert user.profile == profile
+    assert profile.profile_picture.name is None
+
+
+@pytest.mark.django_db
+def test_user_profile_has_related_user():
+
+    user = User.objects.create_user(
+        email="profile@example.com",
+        username="profileuser",
+        password="TestPassword123",
+    )
+
+    profile = UserProfile.objects.create(user=user)
+
+    assert user.profile == profile
+
+
+@pytest.mark.django_db
+def test_user_profile_can_store_profile_picture():
+
+    user = User.objects.create_user(
+        email="avatar@example.com",
+        username="avataruser",
+        password="TestPassword123",
+    )
+
+    image = SimpleUploadedFile(
+        name="avatar.jpg",
+        content=(
+            b"\xFF\xD8\xFF\xE0"
+            b"\x00\x10JFIF\x00\x01\x01\x00\x00\x01\x00\x01\x00\x00"
+            b"\xFF\xDB\x00\x43\x00"
+            b"\x08\x06\x06\x07\x06\x05\x08\x07\x07\x07\x09"
+        ),
+        content_type="image/jpeg",
+    )
+
+    profile = UserProfile.objects.create(
+        user=user,
+        profile_picture=image,
+    )
+
+    assert profile.profile_picture.name.startswith("profiles/")
