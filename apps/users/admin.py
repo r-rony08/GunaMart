@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
 from .forms import UserChangeForm, UserCreationForm
-from .models import User
+from .models import User, UserProfile
 
 # Register your models here.
 
@@ -80,3 +80,14 @@ class CustomUserAdmin(UserAdmin):
         }),
     )
 
+@admin.register(UserProfile)
+class UserProfileAdmin(admin.ModelAdmin):
+
+    list_display = (
+        "user",
+        "profile_picture",
+        "created_at",
+        "updated_at",
+    )
+
+    search_fields = ("user__email","user__username",)
