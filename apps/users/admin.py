@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
 from .forms import UserChangeForm, UserCreationForm
-from .models import User, UserProfile
+from .models import User, UserProfile, Address
 
 # Register your models here.
 
@@ -91,3 +91,26 @@ class UserProfileAdmin(admin.ModelAdmin):
     )
 
     search_fields = ("user__email","user__username",)
+
+
+
+@admin.register(Address)
+class AddressAdmin(admin.ModelAdmin):
+
+    list_display = (
+        "user",
+        "city",
+        "state",
+        "country",
+        "postal_code",
+        "is_default",
+        "created_at",
+    )
+
+    list_filter = ("country","state","city","is_default",)
+
+    search_fields = ("user__email","user__username","address_line","city","state","postal_code",)
+
+    ordering = (
+        "-created_at",
+    )
