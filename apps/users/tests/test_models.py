@@ -1,8 +1,9 @@
 import pytest
 from django.contrib.auth import get_user_model
 from django.db import IntegrityError
+from decimal import Decimal
 
-from apps.users.models import UserProfile
+from apps.users.models import UserProfile, Address
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 User = get_user_model()
@@ -176,3 +177,134 @@ def test_user_profile_can_store_profile_picture():
     )
 
     assert profile.profile_picture.name.startswith("profiles/")
+
+
+@pytest.mark.django_db
+def test_user_can_have_address():
+
+    user = User.objects.create_user(
+        email="address@example.com",
+        username="addressuser",
+        password="TestPassword123",
+    )
+
+    address = Address.objects.create(
+        user=user,
+        address_line="123 Main Road",
+        country="Bangladesh",
+        state="Dhaka",
+        city="Dhaka",
+        postal_code="1207",
+    )
+
+    assert address.user == user
+    assert address.city == "Dhaka"
+    assert address.country == "Bangladesh"
+
+
+@pytest.mark.django_db
+def test_user_can_have_multiple_addresses():
+
+    user = User.objects.create_user(
+        email="multiple@example.com",
+        username="multipleuser",
+        password="TestPassword123",
+    )
+
+    home = Address.objects.create(
+        user=user,
+        address_line="Home Address",
+        country="Bangladesh",
+        state="Dhaka",
+        city="Dhaka",
+        postal_code="1207",
+    )
+
+    office = Address.objects.create(
+        user=user,
+        address_line="Office Address",
+        country="Bangladesh",
+        state="Dhaka",
+        city="Dhaka",
+        postal_code="1212",
+    )
+
+    assert user.addresses.count() == 2
+    assert home in user.addresses.all()
+    assert office in user.addresses.all()
+
+@pytest.mark.django_db
+def test_user_can_have_one_default_address():
+
+    user = User.objects.create_user(
+        email="default@example.com",
+        username="defaultuser",
+        password="TestPassword123",
+    )
+
+    address = Address.objects.create(
+        user=user,
+        address_line="Default Address",
+        country="Bangladesh",
+        state="Dhaka",
+        city="Dhaka",
+        postal_code="1207",
+        is_default=True,
+    )
+
+    assert address.is_default is True
+
+
+@pytest.mark.django_db
+def test_user_cannot_have_two_default_addresses():
+
+    user = User.objects.create_user(
+        email="two-default@example.com",
+        username="twodefaultuser",
+        password="TestPassword123",
+    )
+
+    Address.objects.create(
+        user=user,
+        address_line="First Address",
+        country="Bangladesh",
+        state="Dhaka",
+        city="Dhaka",
+        postal_code="1207",
+        is_default=True,
+    )
+
+    with pytest.raises(IntegrityError):
+        Address.objects.create(
+            user=user,
+            address_line="Second Address",
+            country="Bangladesh",
+            state="Dhaka",
+            city="Dhaka",
+            postal_code="1212",
+            is_default=True,
+        )
+
+
+@pytest.mark.django_db
+def test_address_can_store_coordinates():
+
+    user = User.objects.create_user(
+        email="location@example.com",
+        username="locationuser",
+        password="TestPassword123",
+    )
+
+    address = Address.objects.create(
+        user=user,
+        address_line="Location Address",
+        country="Bangladesh",
+        state="Dhaka",
+        city="Dhaka",
+        postal_code="1207",
+        latitude="23.810331",
+        longitude="90.412521",
+    )
+
+    assert address.latitude == "23.810331"
+    assert address.longitude == "90.412521"

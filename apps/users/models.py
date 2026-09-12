@@ -92,3 +92,41 @@ class UserProfile(models.Model):
     def __str__(self):
         return f"{self.user.email} Profile"
 
+
+class Address(models.Model):
+
+    user = models.ForeignKey(User,on_delete=models.CASCADE,related_name="addresses",)
+
+    address_line = models.TextField()
+
+    country = models.CharField(max_length=100)
+
+    state = models.CharField(max_length=100)
+
+    city = models.CharField(max_length=100)
+
+    postal_code = models.CharField(max_length=20)
+
+    latitude = models.DecimalField(max_digits=9,decimal_places=6,blank=True,null=True,)
+
+    longitude = models.DecimalField(max_digits=9,decimal_places=6,blank=True,null=True,)
+
+    is_default = models.BooleanField(default=False)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+        constraints = [
+            models.UniqueConstraint(
+                fields=["user"],
+                condition=models.Q(is_default=True),
+                name="unique_default_address_per_user",
+            ),
+        ]
+
+    def __str__(self):
+        return f"{self.user.email} - {self.city}, {self.country}"
