@@ -120,7 +120,7 @@ def test_phone_number_is_not_in_required_fields():
 
 
 @pytest.mark.django_db
-def test_user_profile_can_be_created():
+def test_user_profile_is_created_automatically():
 
     user = User.objects.create_user(
         email="profile@example.com",
@@ -128,26 +128,25 @@ def test_user_profile_can_be_created():
         password="TestPassword123",
     )
 
-    profile = UserProfile.objects.create(
-        user=user
-    )
+    profile = UserProfile.objects.get(user=user)
 
     assert profile.user == user
     assert user.profile == profile
-    assert profile.profile_picture.name is None
+    assert not profile.profile_picture.name
 
 
 @pytest.mark.django_db
 def test_user_profile_has_related_user():
 
     user = User.objects.create_user(
-        email="profile@example.com",
-        username="profileuser",
+        email="related@example.com",
+        username="relateduser",
         password="TestPassword123",
     )
 
-    profile = UserProfile.objects.create(user=user)
+    profile = UserProfile.objects.get(user=user)
 
+    assert profile.user == user
     assert user.profile == profile
 
 
@@ -171,10 +170,10 @@ def test_user_profile_can_store_profile_picture():
         content_type="image/jpeg",
     )
 
-    profile = UserProfile.objects.create(
-        user=user,
-        profile_picture=image,
-    )
+    profile = UserProfile.objects.get(user=user)
+
+    profile.profile_picture = image
+    profile.save()
 
     assert profile.profile_picture.name.startswith("profiles/")
 
@@ -308,3 +307,24 @@ def test_address_can_store_coordinates():
 
     assert address.latitude == "23.810331"
     assert address.longitude == "90.412521"
+
+
+
+@pytest.mark.django_db
+def test_user_profile_is_not_created_again_when_user_is_updated():
+
+    user = User.objects.create_user(
+        email="update@example.com",
+        username="updateuser",
+        password="TestPassword123",
+    )
+
+    profile = user.profile
+
+    user.first_name = "Robiul"
+    user.save()
+
+    assert UserProfile.objects.filter(user=user).count() == 1
+    assert user.profile.pk == profile.pk
+
+
